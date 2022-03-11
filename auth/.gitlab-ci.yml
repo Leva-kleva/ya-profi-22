@@ -1,0 +1,19 @@
+include:
+  - project: 'startflask/tools'
+    ref: master
+    file: '/gitlab-ci.yml'
+
+variables:
+  REPO: auth
+  APP_PORT: $AUTH_PORT
+  APP_IN_PORT: 8000
+  ENVIROMENTS:
+    -e DB_LOGIN=$DB_LOGIN
+    -e DB_PASSWORD=$DB_PASSWORD
+    -e DB_NAME=$DB_NAME
+    -e DB_HOST=$DB_HOST
+    -e DB_PORT=$DB_PORT
+    -e DEBUG=$DEBUG
+    -e SECRET_KEY=$SECRET_KEY
+    -e AUTH_PORT=$AUTH_PORT
+    -e AUTH_HOST=$AUTH_HOST

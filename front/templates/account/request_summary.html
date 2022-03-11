@@ -1,0 +1,235 @@
+{% extends "account/base.html" %}
+
+{% block contentacc %}
+<div class="w3-row-padding">
+    <h2>
+        {% if data.queryset.sname %}
+        {{data.queryset.sname}} {{data.queryset.fname}} {{data.queryset.mname}}
+        {% else %}
+        {% for a, b in data.queryset.items() %} {% if a != "birthday" %} {{b}} {% endif %} {% endfor %}
+        {% endif %}
+    </h2>
+</div>
+<br>
+
+<div class="w3-row-padding">
+    <button class="w3-btn w3-gray" type="button"
+            style="padding: 5px 8px;" id="PDF">скачать PDF
+    </button>
+<!--    <button class="w3-btn w3-gray" type="button"-->
+<!--            style="padding: 5px 8px;" id="DOCX">скачать DOCX-->
+<!--    </button>-->
+    <br>
+    <h6 id="responsereport"></h6>
+</div>
+<br>
+
+<div class="w3-row-padding">
+    <div class="w3-half">
+        {% for index in sorting.left %}
+        {% if data.response[index] %}
+        <div class="w3-card w3-container">
+            <h5>{{ data.response[index].name }}</h5>
+            <hr class="hr0">
+            {% if data.response[index].status == 'closed' %}
+                {% if data.response[index].information | length >= 1 or index == "10" %}
+                <p style="color: red; float: left; width: 50%;">Результат получен</p>
+                <p style="float: left; width: 50%; text-align: right; color: blue;">
+                    <a onclick="document.getElementById('id{{index}}').style.display='block'">
+                        Подробнее
+                    </a></p>
+                    <div id="id{{index}}" class="w3-modal" style="display: none;">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top">
+                            <header class="w3-container w3-gray">
+                                <span onclick="document.getElementById('id{{index}}').style.display='none'"
+                                      class="w3-button w3-display-topright">×</span>
+                                <h5>{{ data.response[index].name }}</h5>
+                            </header>
+                            {% if index == "1" or index == "2" %}
+                            <div class="w3-padding">
+                                {% for element in  data.response[index].information  %}
+                                <h3>{{ element.source_name }}</h3>
+                                    {% for el in element.information %}
+                                    {% for key, value in el.items() %}
+                                    <p>{{ key[3:] }}: {{ value | safe }}</p>
+                                    {% endfor %}
+                                    {% endfor %}
+                                <hr>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="w3-padding">
+                                {% for element in data.response[index].information  %}
+                                <h4>{{ element.name }}</h4>
+                                    {% for key, value in element.items() %}
+                                    <p>{{ key[3:] }}: {{ value }}</p>
+                                    {% endfor %}
+                                <hr>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    {% for el in data.response[index].information.0 %}
+                    <p style="color: red; float: left; width: 50%;">{{ el[3:]  | safe }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% elif data.response[index].status == 'not found' %}
+                {% if data.response[index].information.0 %}
+                    {% for el in data.response[index].information.0 %}
+                    <p style="color: green; float: left; width: 50%;">{{ el[3:] }}</p>
+                    {% endfor %}
+                {% else %}
+                <p style="color: green; float: left; width: 50%;">Информация не найдена</p>
+                {% endif %}
+            {% elif data.response[index].status == 'open' %}
+                <p class="reload" style="float: left; width: 50%;">Запрос обрабатывается <a href="#" onclick="location.reload(); return false;"><img
+                        src="/static/img/reload.png" style="width:16px" alt="Обновить"></a></p>
+            {% elif data.response[index].status == 'in proccess' or data.response[index].status == 'in process' %}
+                <p class="reload" style="float: left; width: 50%;">Запрос обрабатывается <a href="#" onclick="location.reload(); return false;"><img
+                        src="/static/img/reload.png" style="width:16px" alt="Обновить"></a></p>
+            {% elif data.response[index].status == 'error' %}
+                <p style="color: red; float: left; width: 50%;">Ошибка обработки запроса</p>
+            {% endif %}
+            <p></p>
+        </div>
+        <br>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="w3-half">
+        {% for index in sorting.right %}
+        {% if data.response[index] %}
+        <div class="w3-card w3-container">
+            <h5>{{ data.response[index].name }}</h5>
+            <hr class="hr0">
+            {% if data.response[index].status == 'closed' %}
+                {% if data.response[index].information | length >= 1 or index == "10" %}
+                <p style="color: red; float: left; width: 50%;">Результат получен</p>
+                <p style="float: left; width: 50%; text-align: right; color: blue;">
+                    <a onclick="document.getElementById('id{{index}}').style.display='block'">
+                        Подробнее
+                    </a></p>
+                    <div id="id{{index}}" class="w3-modal" style="display: none;">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top">
+                            <header class="w3-container w3-gray">
+                                <span onclick="document.getElementById('id{{index}}').style.display='none'"
+                                      class="w3-button w3-display-topright">×</span>
+                                <h5>{{ data.response[index].name }}</h5>
+                            </header>
+                            {% if index == "1" or index == "2" %}
+                            <div class="w3-padding">
+                                {% for element in  data.response[index].information  %}
+                                <h3>{{ element.source_name }}</h3>
+                                    {% for el in element.information %}
+                                    {% for key, value in el.items() %}
+                                    <p>{{ key[3:] }}: {{ value  | safe }}</p>
+                                    {% endfor %}
+                                    {% endfor %}
+                                <hr>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="w3-padding">
+                                {% for element in data.response[index].information  %}
+                                <h4>{{ element.name }}</h4>
+                                    {% for key, value in element.items() %}
+                                    <p>{{ key[3:] }}: {{ value }}</p>
+                                    {% endfor %}
+                                <hr>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    {% for el in data.response[index].information.0 %}
+                    <p style="color: red; float: left; width: 50%;">{{ el[3:]  | safe }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% elif data.response[index].status == 'not found' %}
+                {% if data.response[index].information.0 %}
+                    {% for el in data.response[index].information.0 %}
+                    <p style="color: green; float: left; width: 50%;">{{ el[3:] }}</p>
+                    {% endfor %}
+                {% else %}
+                <p style="color: green; float: left; width: 50%;">Информация не найдена</p>
+                {% endif %}
+            {% elif data.response[index].status == 'open' %}
+                <p class="reload" style="float: left; width: 50%;">Запрос обрабатывается <a href="#" onclick="location.reload(); return false;"><img
+                        src="/static/img/reload.png" style="width:16px" alt="Обновить"></a></p>
+            {% elif data.response[index].status == 'in proccess' or data.response[index].status == 'in process' %}
+                <p class="reload" style="float: left; width: 50%;">Запрос обрабатывается <a href="#" onclick="location.reload(); return false;"><img
+                        src="/static/img/reload.png" style="width:16px" alt="Обновить"></a></p>
+            {% elif data.response[index].status == 'error' %}
+                <p style="color: red; float: left; width: 50%;">Ошибка обработки запроса</p>
+            {% endif %}
+            <p></p>
+        </div>
+        <br>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<br>
+
+<div class="w3-row-padding">
+    <h4><a href="\account\search\links">Дополнительная проверка физического лица по интернет-ресурсам >></a></h4>
+</div>
+<br>
+
+<div class="w3-row-padding">
+    <h4></h4>
+</div>
+<br>
+
+<script>
+$(function() {
+    $('#PDF').click(function() {
+        $.ajax({
+            url: '/api/v1/info/download/{{ data.file_id }}',
+            type: 'GET',
+            success: function(response) {
+                var msg = '';
+                if (response.info == 'open') {
+                    msg = 'Отчет скоро будет готов. Попробуйте скачать позже.';
+                }
+                else if (response.info == 'in process') {
+                    msg = 'Отчет скоро будет готов. Попробуйте скачать позже.';
+                }
+                else if (response.info == 'closed') {
+<!--                    msg = 'Отчет успешно сгенерирован.';-->
+                    location.href = '{{ url_for('account_download_report', file_id=data.file_id, extension="PDF") }}';
+                }
+                else if (response.info == 'error') {
+                    msg = 'При формировании отчета возникла ошибка. Попробуйте позже или обратитесь в тех. поддержку.';
+                }
+                else if (response.info == 'not found') {
+                    msg = 'Информации в отношении объекта не найдено';
+                }
+                console.log(msg);
+                $("#responsereport").html(msg)
+                },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Ошибка';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#responsereport").html(msg);
+            }
+        });
+    });
+});
+</script>
+<script>
+window.setTimeout(function(){
+        if ($('.reload').length > 0) {
+         location.reload();
+         }
+        }, 10000);
+</script>
+{% endblock contentacc %}

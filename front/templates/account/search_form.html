@@ -1,0 +1,275 @@
+{% extends "account/base.html" %}
+
+{% block contentacc %}
+<div id="search" class="w3-center">\
+    <br>
+    <div class="w3-bar w3-gray">
+        <button class="w3-bar-item w3-button testbtn w3-padding-16" onclick="openCity(event,'csv1-tab')">
+            CSV/XLS local
+        </button>
+        <button class="w3-bar-item w3-button testbtn w3-padding-16" onclick="openCity(event,'csv2-tab')">CSV/XLS network</button>
+        <button class="w3-bar-item w3-button testbtn w3-padding-16" onclick="openCity(event,'pg-tab')">PostgreSQL
+        </button>
+        <button class="w3-bar-item w3-button testbtn w3-padding-16" onclick="openCity(event,'mg-tab')">MongoDB
+        </button>
+    </div>
+
+    <hr>
+
+    <div id="csv1-tab" class="w3-container city w3-animate-opacity">
+        <div class="w3-card w3-container" style="margin: 15%; margin-top: 0%">
+            <form>
+                <div class="w3-section">
+                    <input class="w3-input" id="csv1-url" type="text" name="csv1"
+                           placeholder="url"
+                           autocomplete="off">
+                </div>
+            </form>
+            <button class="w3-btn w3-gray" id="csv1-btnSearch" type="button">
+                Обработать
+            </button>
+            <h5 id="cv1-response"></h5>
+            <div class="w3-margin-top"></div>
+        </div>
+    </div>
+
+    <div id="csv2-tab" class="w3-container city w3-animate-opacity">
+        <div class="w3-card w3-container" style="margin: 15%; margin-top: 0%">
+            <form>
+                <div class="w3-section">
+                    <input class="w3-input" id="csv2-url" type="text" name="csv2" placeholder="url"
+                           autocomplete="off">
+                </div>
+            </form>
+            <button class="w3-btn w3-gray" id="csv2-btnSearch" type="button">
+                Обработать
+            </button>
+            <h5 id="csv2-response"></h5>
+            <div class="w3-margin-top"></div>
+        </div>
+    </div>
+
+    <div id="pg-tab" class="w3-container city w3-animate-opacity">
+        <div class="w3-card w3-container" style="margin: 15%; margin-top: 0%">
+            <form>
+                <div class="w3-section">
+                    <input class="w3-input" id="pg-url" type="text" name="pg" placeholder="table"
+                           autocomplete="off">
+                </div>
+            </form>
+            <button class="w3-btn w3-gray" id="pg-btnSearch" type="button">
+                Обработать
+            </button>
+            <h5 id="pg-response"></h5>
+            <div class="w3-margin-top"></div>
+        </div>
+    </div>
+
+    <div id="mg-tab" class="w3-container city w3-animate-opacity">
+        <div class="w3-card w3-container" style="margin: 15%; margin-top: 0%">
+            <form>
+                <div class="w3-section">
+                    <input class="w3-input" id="mg-url" type="text" name="mg"
+                           placeholder="Телефон"
+                           autocomplete="off">
+                </div>
+            </form>
+            <button class="w3-btn w3-gray" id="mg-btnSearch" type="button">
+                Обработать
+            </button>
+            <h5 id="mg-response"></h5>
+            <div class="w3-margin-top"></div>
+        </div>
+    </div>
+
+</div>
+<br>
+
+
+<script>
+$(function() {
+    $('#csv1-btnSearch').click(function() {
+        var body = {
+            "type": "csv1",
+            "url": $('#csv1-url').val()
+        };
+        $.ajax({
+            url: '/api/v1/info/search',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(body),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                $("#csv1-response").html("Запрос отправлен");
+                $('#csv1-url').val('');
+                var ref = '';
+                ref = "/account/requests/" + response.request_id;
+                window.setTimeout(function(){
+                    location.href = ref;
+                  }, 600);
+            },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Информация в отношении объекта не найдена';
+                } else if (error.status == 500) {
+                    msg = 'Ошибка сервера. Попробуйте позже.';
+                } else if (error.status == 403) {
+                    msg = 'Нет доступа.';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#csv1-response").html(msg);
+            }
+        });
+    });
+});
+
+$(function() {
+    $('#csv2-btnSearch').click(function() {
+        var body = {
+            "type": "csv2",
+            "url": $('#csv2-url').val()
+        };
+        $.ajax({
+            url: '/api/v1/info/search',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(body),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                $("#csv2-response").html("Запрос отправлен");
+                $('#csv2').val('');
+                var ref = '';
+                ref = "/account/requests/" + response.request_id;
+                window.setTimeout(function(){
+                    location.href = ref;
+                  }, 600);
+            },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Информация в отношении объекта не найдена';
+                } else if (error.status == 500) {
+                    msg = 'Ошибка сервера. Попробуйте позже.';
+                } else if (error.status == 403) {
+                    msg = 'Нет доступа.';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#csv2-response").html(msg);
+            }
+        });
+    });
+});
+
+
+$(function() {
+    $('#pg-btnSearch').click(function() {
+        var body = {
+            "type": "pg",
+            "url": $('#pg-url').val()
+        };
+        $.ajax({
+            url: '/api/v1/info/search',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(body),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                $("#pg-response").html("Запрос отправлен");
+                $('#pg').val('');
+                var ref = '';
+                ref = "/account/requests/" + response.request_id;
+                window.setTimeout(function(){
+                    location.href = ref;
+                  }, 600);
+            },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Информация в отношении объекта не найдена';
+                } else if (error.status == 500) {
+                    msg = 'Ошибка сервера. Попробуйте позже.';
+                } else if (error.status == 403) {
+                    msg = 'Нет доступа.';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#pg-response").html(msg);
+            }
+        });
+    });
+});
+
+
+$(function() {
+    $('#mg-btnSearch').click(function() {
+        var body = {
+            "type": "mg",
+            "urk": $('#mg').val()
+        };
+        $.ajax({
+            url: '/api/v1/info/search',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(body),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                $("#mg-response").html("Запрос отправлен");
+                $('#mg').val('');
+                var ref = '';
+                ref = "/account/requests/" + response.request_id;
+                window.setTimeout(function(){
+                    location.href = ref;
+                  }, 600);
+            },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Информация в отношении объекта не найдена';
+                } else if (error.status == 500) {
+                    msg = 'Ошибка сервера. Попробуйте позже.';
+                } else if (error.status == 403) {
+                    msg = 'Нет доступа.';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#mg-response").html(msg);
+            }
+        });
+    });
+});
+
+
+function openCity(evt, cityName) {
+  var i;
+  var x = document.getElementsByClassName("city");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  var activebtn = document.getElementsByClassName("testbtn");
+  for (i = 0; i < x.length; i++) {
+    activebtn[i].className = activebtn[i].className.replace(" w3-blue-dark", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " w3-blue-dark";
+}
+
+var mybtn = document.getElementsByClassName("testbtn")[0];
+mybtn.click();
+</script>
+<br>
+{% endblock contentacc %}

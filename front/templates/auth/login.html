@@ -1,0 +1,74 @@
+{% extends "auth/base.html" %}
+{% block contentauth %}
+<div class="w3-row-padding w3-center w3-margin-top">
+    <div class="w3-third ">
+        <div class="w3-container"></div>
+    </div>
+    <div class="w3-third">
+        <h3></h3>
+        <div class="w3-card w3-container" style="margin: 15%; margin-top: 0%">
+            <form>
+                <div class="w3-section">
+                    <input class="w3-input" id="login" type="text" name="login" placeholder="Логин"
+                           autocomplete="off">
+                </div>
+                <div class="w3-section" align="left">
+                    <input class="w3-input" id="password" type="password" name="password" placeholder="Пароль"
+                           autocomplete="off">
+                    <label><input type="checkbox" class="password-checkbox"> показать пароль</label>
+                </div>
+                <h6 id="response_login"></h6>
+                <button class="w3-btn w3-gray" id="btnSignin" type="button">
+                    Войти
+                </button>
+                <div class="w3-margin-top"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$('body').on('click', '.password-checkbox', function() {
+    if ($(this).is(':checked')) {
+        $('#password').attr('type', 'text');
+    } else {
+        $('#password').attr('type', 'password');
+    }
+});
+
+$(function() {
+    $('#btnSignin').click(function() {
+        var body = {
+            "login": $('#login').val(),
+            "password": $('#password').val()
+        };
+        $.ajax({
+            url: '/api/v1/login',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(body),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                location.href = '{{ url_for('account_search') }}';
+            },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Неверный логин или пароль';
+                } else if (error.status == 500) {
+                    msg = 'Ошибка сервера. Повторите позже';
+                } else if (error.status == 422) {
+                    msg = 'Неверный логин или пароль';
+                } else {
+                    msg = 'Ошибка. Повторите позже';
+                }
+                console.log(msg);
+                $("#response_login").html(msg);
+            }
+        });
+    });
+});
+</script>
+{% endblock contentauth %}

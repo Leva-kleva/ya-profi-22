@@ -1,0 +1,133 @@
+{% extends "account/base.html" %}
+
+{% block contentacc %}
+<div id="request" class="w3-container">
+    <div class="w3-center">
+        <h3>Мои запросы</h3>
+    </div>
+    <form>
+        <div class="w3-section">
+            <input class="w3-input" id="searchrqst" type="text" name="searchrqst" placeholder="Введите фамилию"
+                   autocomplete="off" style="width: 50%; display: inline; padding: 3px;">
+            <button class="w3-btn w3-gray w3-hover-gray" id="btnSearchrqst" type="button" style="padding: 5px 8px;"
+                    onclick="Search()">
+                Поиск
+            </button>
+            <button class="w3-btn w3-gray" id="btnReload" type="button"
+                    style="padding: 5px 8px; float: right;"
+                    onclick="location.reload(); return false;">
+                Обновить
+            </button>
+        </div>
+    </form>
+    {% if pagination.itms != '[]' %}
+    <div class="w3-responsive w3-card-4">
+        <table class="w3-table w3-striped w3-bordered">
+            <thead>
+            <tr class="w3-gray">
+                <th>Дата</th>
+                <th>Объект</th>
+                <th>Отчет</th>
+                <th>Статус</th>
+                <th>Отчет</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for el in pagination.itms %}
+            <tr>
+                <td>{{ el.dttm }}</td>
+                <td>
+                    {% if el.queryset.sname %}
+                    {{el.queryset.sname}} {{el.queryset.fname}} {{el.queryset.mname}}
+                    {% else %}
+                    {% for a, b in el.queryset.items() %} {% if a != "birthday" %} {{b}} {% endif %} {% endfor %}
+                    {% endif %}
+                </td>
+                {% if el.status == 'closed' %}
+                    <td><a class="download" id="{{ el.id }}">PDF</a></td>
+                    <td>Ответ получен</td>
+                {% elif el.status == 'in proccess' or el.status == 'in process' %}
+                <td></td>
+                <td class="reload">Обрабатывается <a href="#" onclick="location.reload(); return false;"><img
+                        src="/static/img/reload.png" style="width:16px" alt="Обновить"></a></td>
+                {% elif el.status == 'open' %}
+                <td></td>
+                <td class="reload">Ожидается <a href="#" onclick="location.reload(); return false;"><img src="/static/img/reload.png"
+                                                                                          style="width:16px" alt="Обновить"></a></td>
+                {% elif el.status == 'error' %}
+                <td></td>
+                <td>Ошибка. Повторите запрос.</td>
+                {% elif el.status == 'not found' %}
+                <td></td>
+                <td>Объект не найден</td>
+                {% endif %}
+                <td>{% if el.id > 66 %}
+                    <a href="{{ url_for('account_request_summary', id_request=el.id) }}">Смотреть>></a>
+                    {% else %}
+                        <a>---</a>
+                    {% endif %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "account/include/pagination.html" %}
+    {% endif %}
+</div>
+<br>
+<script type="text/javascript">
+function Search() {
+    var text = document.getElementById("searchrqst").value;
+    window.location.href = "/account/requests/search?query=" + text;
+}
+
+$(function() {
+    $('.download').click(function() {
+        $.ajax({
+            url: '/api/v1/info/download/'+this.id,
+            type: 'GET',
+            context: this,
+            success: function(response) {
+                var msg = '';
+                if (response.info == 'open') {
+                    msg = 'Отчет скоро будет готов. Попробуйте скачать позже.';
+                }
+                else if (response.info == 'in process') {
+                    msg = 'Отчет скоро будет готов. Попробуйте скачать позже.';
+                }
+                else if (response.info == 'closed') {
+<!--                    msg = 'Отчет успешно сгенерирован.';-->
+                    location.href = '/download/' + this.id + '/PDF';
+                }
+                else if (response.info == 'error') {
+                    msg = 'При формировании отчета возникла ошибка. Попробуйте позже или обратитесь в тех. поддержку.';
+                }
+                else if (response.info == 'not found') {
+                    msg = 'Информации в отношении объекта не найдено';
+                }
+                console.log(msg);
+                $("#responsereport").html(msg)
+                },
+            error: function(error) {
+                var msg = '';
+                if (error.status == 400) {
+                    msg = 'Ошибка';
+                } else {
+                    msg = 'Ошибка.';
+                }
+                console.log(msg);
+                $("#responsereport").html(msg);
+            }
+        });
+    });
+});
+</script>
+<script>
+window.setTimeout(function(){
+        if ($('.reload').length > 0) {
+         location.reload();
+         }
+        }, 10000);
+</script>
+{% endblock contentacc %}
